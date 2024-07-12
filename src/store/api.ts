@@ -12,4 +12,4 @@ export type REQUEST_TYPE = {
 
 export const apiCallBegan = createAction<REQUEST_TYPE>("api/callBegan");
 export const apiCallSuccess = createAction("api/callSuccess");
-export const apiCallFail = createAction("api/callFail");
+export const apiCallFail = createAction<string>("api/callFail");

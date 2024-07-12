@@ -6,54 +6,66 @@ import { useSelector } from "react-redux";
 
 interface IAuth {
   isLogged: boolean;
+  isLoading: boolean;
 }
 
 const AuthUser: IAuth = {
   isLogged: false,
+  isLoading: false,
 };
 
 const slice = createSlice({
   name: "auth",
   initialState: AuthUser,
   reducers: {
-    userLogingRequested: (authUser: IAuth, actions) => {
+    logingRequested: (authUser: IAuth) => {
       authUser.isLogged = false;
+      authUser.isLoading = true;
     },
     userLogged: (authUser: IAuth, actions) => {
       authUser.isLogged = true;
-      console.log(actions.payload);
+      authUser.isLoading = false;
     },
     userLoggedFail: (authUser: IAuth, action) => {
       authUser.isLogged = false;
+      authUser.isLoading = false;
     },
   },
 });
 
-const { userLogged, userLogingRequested, userLoggedFail } = slice.actions;
+export const { userLogged, logingRequested, userLoggedFail } = slice.actions;
 export default slice.reducer;
 
 const path = "/auth/jwt/create";
 export const login = (data: IUserLogin) => (dispatch: Dispatch) => {
-  dispatch(
+  return dispatch(
     apiCallBegan({
       method: "post",
       path,
       data,
-      onStart: apiCallBegan.type,
+      onStart: logingRequested.type,
       onSuccess: userLogged.type,
       onError: userLoggedFail.type,
     })
   );
 };
 
-const selectAuthState = (state: RootState) => state.entities.auth;
+// const selectAuthState = (state: RootState) => state.entities.auth;
 
-export const checkAuthenticated = createSelector(
-  [selectAuthState],
+const authenticatSelector = createSelector(
+  [(state: RootState) => state.entities.auth],
   (authState) => authState.isLogged
+);
+
+const loadingSelector = createSelector(
+  [(state: RootState) => state.entities.auth],
+  (authState) => authState.isLoading
 );
 
 export const useAuthenticated = () =>
   useSelector((state: { entities: { auth: IAuth } }) =>
-    checkAuthenticated(state)
+    authenticatSelector(state)
   );
+
+export const useAuthLoading = () =>
+  useSelector((state: { entities: { auth: IAuth } }) => loadingSelector(state));

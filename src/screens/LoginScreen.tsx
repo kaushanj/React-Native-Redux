@@ -7,12 +7,14 @@ import AppScreen from "@components/AppScreen";
 import { Formik } from "formik";
 import AppFormTextInput from "@components/forms/AppFormTextInput";
 import { IUserLogin } from "src/models/user/user.interface";
-import { login } from "src/store/reducers/auth";
+import { login, useAuthLoading } from "src/store/reducers/auth";
 import AppFormButton from "@components/forms/AppFormButton";
 import { useAppDispatch } from "src/store/configureStore";
 
 const LoginScreen = () => {
   const dispatch = useAppDispatch();
+  const loading = useAuthLoading();
+
   const initialValues = {
     username: "",
     password: "",
@@ -40,7 +42,7 @@ const LoginScreen = () => {
             <AppFormTextInput label="Username" name="username" />
             <AppFormTextInput label="Username" name="password" />
 
-            <AppFormButton title="Login" />
+            <AppFormButton title="Login" loading={loading} />
           </>
         </Formik>
       </View>

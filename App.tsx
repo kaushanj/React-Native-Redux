@@ -1,10 +1,7 @@
 import { Provider } from "react-redux";
 import store from "./src/store/configureStore";
 
-import {
-  checkAuthenticated,
-  useAuthenticated,
-} from "./src/store/reducers/auth";
+import { useAuthenticated } from "./src/store/reducers/auth";
 
 import LoginScreen from "@screens/LoginScreen";
 import HomeScreen from "@screens/HomeScreen";
@@ -19,12 +16,11 @@ export default function App() {
 }
 
 const Authentication = () => {
-  const isAuthenticated = useAuthenticated();
-  console.log(isAuthenticated);
+  const isLogged = useAuthenticated();
 
   return (
     <View style={{ flex: 1 }}>
-      {isAuthenticated ? <HomeScreen /> : <LoginScreen />}
+      {isLogged ? <HomeScreen /> : <LoginScreen />}
     </View>
   );
 };

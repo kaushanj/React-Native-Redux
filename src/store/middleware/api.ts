@@ -6,7 +6,7 @@ const apiMiddleware: Middleware<{}> =
   ({ dispatch }) =>
   (next) =>
   async (action: any) => {
-    if (action.type != "api/callBegan") return next(action);
+    if (action.type != actiions.apiCallBegan.type) return next(action);
 
     const { path, method, data, onSuccess, onStart, onError } = action.payload;
 
@@ -15,14 +15,13 @@ const apiMiddleware: Middleware<{}> =
 
     try {
       const response = await unauthorizedRequest({ url: path, method, data });
-      console.log(response.data);
 
-      actiions.apiCallSuccess(response.data);
+      dispatch(actiions.apiCallSuccess(response.data));
 
       if (onSuccess) dispatch({ type: onSuccess, payload: response.data });
     } catch (error) {
       if (error instanceof Error) {
-        // dispatch(actiions.apiCallFail(error.message));
+        dispatch(actiions.apiCallFail(error.message));
 
         if (onError) dispatch({ type: onError, payload: error.message });
       }
