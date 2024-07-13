@@ -1,11 +1,13 @@
-import { Text, View } from "react-native";
-import { useAuthenticated } from "src/store/reducers/auth";
+import AppButton from "@components/AppButton";
+import {  View } from "react-native";
+import useAuth from "src/auth/useAuth";
+
 
 export default () => {
-  const isAuthenticated = useAuthenticated();
+  const d = useAuth()
   return (
-    <View>
-      <Text>Is userLoges {isAuthenticated}</Text>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <AppButton title="Logout" onPress={() => d.onLogout()}/>
     </View>
   );
 };

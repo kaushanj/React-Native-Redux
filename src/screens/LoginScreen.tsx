@@ -7,13 +7,16 @@ import AppScreen from "@components/AppScreen";
 import { Formik } from "formik";
 import AppFormTextInput from "@components/forms/AppFormTextInput";
 import { IUserLogin } from "src/models/user/user.interface";
-import { login, useAuthLoading } from "src/store/reducers/auth";
 import AppFormButton from "@components/forms/AppFormButton";
-import { useAppDispatch } from "src/store/configureStore";
+import useAuth from "src/auth/useAuth";
+
+
+
 
 const LoginScreen = () => {
-  const dispatch = useAppDispatch();
-  const loading = useAuthLoading();
+
+  const { loading, onLogin } = useAuth();
+
 
   const initialValues = {
     username: "",
@@ -27,7 +30,7 @@ const LoginScreen = () => {
 
   const handleSubmit = async (loginInfo: IUserLogin) => {
     Keyboard.dismiss();
-    dispatch(login(loginInfo));
+    onLogin(loginInfo);
   };
 
   return (

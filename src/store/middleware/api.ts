@@ -1,5 +1,5 @@
 import { Middleware } from "redux";
-import { unauthorizedRequest } from "../../services/request";
+import request from "../../services/request";
 import * as actiions from "../api";
 
 const apiMiddleware: Middleware<{}> =
@@ -14,7 +14,7 @@ const apiMiddleware: Middleware<{}> =
     next(action);
 
     try {
-      const response = await unauthorizedRequest({ url: path, method, data });
+      const response = await request({ url: path, method, data });
 
       dispatch(actiions.apiCallSuccess(response.data));
 

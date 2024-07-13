@@ -18,10 +18,18 @@ export default () => {
     return { accessToke, refreshToken };
   }
 
-  async function setToken(token: TOKEN_TYPE) {
-    await SecureStore.setItemAsync(accessTokenKey, token.accessToke);
-    await SecureStore.setItemAsync(refreshKey, token.refreshToken);
+  async function setToken(token: Partial<TOKEN_TYPE>) {
+    if (token.accessToke)
+      await SecureStore.setItemAsync(accessTokenKey, token.accessToke);
+
+    if (token.refreshToken)
+        await SecureStore.setItemAsync(refreshKey, token.refreshToken);
   }
 
-  return { getToken, setToken };
+  async function remove() {
+    await SecureStore.deleteItemAsync(accessTokenKey);
+    await SecureStore.deleteItemAsync(refreshKey);
+  }
+
+  return { getToken, setToken, remove };
 };

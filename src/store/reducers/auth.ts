@@ -1,16 +1,19 @@
+import { useSelector } from "react-redux";
 import { createSelector, createSlice, Dispatch } from "@reduxjs/toolkit";
+
 import { IUserLogin } from "../../models/user/user.interface";
 import { apiCallBegan } from "../api";
 import { RootState } from "../configureStore";
-import { useSelector } from "react-redux";
+
+import useToken from "../../hooks/useToken";
+import * as routes from "src/api/routes";
 
 interface IAuth {
-  isLogged: boolean;
   isLoading: boolean;
+  isLoggedIn?: boolean;
 }
 
 const AuthUser: IAuth = {
-  isLogged: false,
   isLoading: false,
 };
 
@@ -19,53 +22,94 @@ const slice = createSlice({
   initialState: AuthUser,
   reducers: {
     logingRequested: (authUser: IAuth) => {
-      authUser.isLogged = false;
       authUser.isLoading = true;
     },
-    userLogged: (authUser: IAuth, actions) => {
-      authUser.isLogged = true;
+    LoggedIn: (authUser: IAuth, actions) => {
       authUser.isLoading = false;
+      authUser.isLoggedIn = true;
+      const { setToken } = useToken();
+      setToken({
+        accessToke: actions.payload.access,
+        refreshToken: actions.payload.refresh,
+      });
     },
-    userLoggedFail: (authUser: IAuth, action) => {
-      authUser.isLogged = false;
+    authRefresh: (authUser: IAuth, actions) => {
+      const { setToken } = useToken();
+      setToken({
+        accessToke: actions.payload.access,
+      });
+      authUser.isLoggedIn = true;
+    },
+    userLoggedFail: (authUser: IAuth) => {
       authUser.isLoading = false;
+      authUser.isLoggedIn = false;
+      const { remove } = useToken();
+      remove();
+    },
+    userLoggedOut: (authUser: IAuth) => {
+      authUser.isLoading = false;
+      authUser.isLoggedIn = false;
+      const { remove } = useToken();
+      remove();
     },
   },
 });
 
-export const { userLogged, logingRequested, userLoggedFail } = slice.actions;
+const {
+  LoggedIn,
+  logingRequested,
+  userLoggedFail,
+  userLoggedOut,
+  authRefresh,
+} = slice.actions;
 export default slice.reducer;
-
-const path = "/auth/jwt/create";
 export const login = (data: IUserLogin) => (dispatch: Dispatch) => {
   return dispatch(
     apiCallBegan({
       method: "post",
-      path,
+      path: routes.tokenPost,
       data,
       onStart: logingRequested.type,
-      onSuccess: userLogged.type,
+      onSuccess: LoggedIn.type,
       onError: userLoggedFail.type,
     })
   );
 };
 
-// const selectAuthState = (state: RootState) => state.entities.auth;
+export const refresh = () => async (dispatch: Dispatch) => {
+  const { getToken } = useToken();
+  const token = await getToken();
 
-const authenticatSelector = createSelector(
-  [(state: RootState) => state.entities.auth],
-  (authState) => authState.isLogged
-);
+  return dispatch(
+    apiCallBegan({
+      method: "post",
+      data: {
+        refresh: token?.refreshToken,
+      },
+      path: routes.tokenRefresh,
+      onSuccess: authRefresh.type,
+      onError: userLoggedFail.type,
+    })
+  );
+};
+
+export const logout = () => (dispatch: Dispatch) => {
+  return dispatch(userLoggedOut());
+};
 
 const loadingSelector = createSelector(
   [(state: RootState) => state.entities.auth],
   (authState) => authState.isLoading
 );
 
-export const useAuthenticated = () =>
-  useSelector((state: { entities: { auth: IAuth } }) =>
-    authenticatSelector(state)
-  );
+const loggedInSelector = createSelector(
+  [(state: RootState) => state.entities.auth],
+  (authState) => authState.isLoggedIn
+);
 
 export const useAuthLoading = () =>
   useSelector((state: { entities: { auth: IAuth } }) => loadingSelector(state));
+export const useLoggedIn = () =>
+  useSelector((state: { entities: { auth: IAuth } }) =>
+    loggedInSelector(state)
+  );
