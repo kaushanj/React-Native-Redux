@@ -35,6 +35,11 @@ const slice = createSlice({
     },
     authRefresh: (authUser: IAuth, actions) => {
       const { setToken } = useToken();
+
+      if (!actions.payload.access) {
+        authUser.isLoggedIn = false;
+        return;
+      }
       setToken({
         accessToke: actions.payload.access,
       });
@@ -79,6 +84,8 @@ export const login = (data: IUserLogin) => (dispatch: Dispatch) => {
 export const refresh = () => async (dispatch: Dispatch) => {
   const { getToken } = useToken();
   const token = await getToken();
+
+console.log(token);
 
   return dispatch(
     apiCallBegan({

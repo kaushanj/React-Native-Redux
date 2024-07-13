@@ -1,7 +1,7 @@
 import { createAction } from "@reduxjs/toolkit";
 import { Method } from "axios";
 
-export type REQUEST_TYPE = {
+type REQUEST_TYPE = {
   path: string;
   method: Method;
   data: {};

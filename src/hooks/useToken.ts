@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-type TOKEN_TYPE = {
+export type TOKEN_TYPE = {
   accessToke: string;
   refreshToken: string;
 };
@@ -23,7 +23,7 @@ export default () => {
       await SecureStore.setItemAsync(accessTokenKey, token.accessToke);
 
     if (token.refreshToken)
-        await SecureStore.setItemAsync(refreshKey, token.refreshToken);
+      await SecureStore.setItemAsync(refreshKey, token.refreshToken);
   }
 
   async function remove() {
